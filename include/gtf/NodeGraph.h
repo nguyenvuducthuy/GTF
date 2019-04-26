@@ -92,7 +92,7 @@ public:
 using NodeConnectionI32 = NodeConnection<int32_t>;
 using NodeConnectionU32 = NodeConnection<uint32_t>;
 using NodeConnectionF32 = NodeConnection<float>;
-using NodeConnectionF32V3 = NodeConnection<float[3]>;
+using NodeConnectionStr = NodeConnection<std::string>;
 
 class Node
 {

@@ -567,12 +567,20 @@ void NodeGraph::displayNode(ImDrawList* drawList, ImVec2 offset, Node* node, int
         {
             ImGui::Text("%d", numberCon->data);
         }
-        else
-        {
-            ImGui::Text("%s", con->desc->displayName.c_str());
-        }
-        
-        
+		else
+		{
+			auto strCon = NodeConnectionStr::CAST(con);
+
+			if (strCon)
+			{
+				ImGui::Text("%s", strCon->data.c_str());
+			}
+			else
+			{
+				ImGui::Text("%s", con->desc->displayName.c_str());
+			}
+		}
+     
 		ImColor conColor = ImColor(150, 150, 150);
         
 		if (isConnectorHovered(con, node_rect_min))
@@ -598,10 +606,19 @@ void NodeGraph::displayNode(ImDrawList* drawList, ImVec2 offset, Node* node, int
         {
             ImGui::Text("%d", numberCon->data);
         }
-        else
-        {
-            ImGui::Text("%s", con->desc->displayName.c_str());
-        }
+		else
+		{
+			auto strCon = NodeConnectionStr::CAST(con);
+
+			if (strCon)
+			{
+				ImGui::Text("%s", strCon->data.c_str());
+			}
+			else
+			{
+				ImGui::Text("%s", con->desc->displayName.c_str());
+			}
+		}
         
         
 		ImColor conColor = ImColor(150, 150, 150);
