@@ -48,17 +48,25 @@ CalcWindow::CalcWindow(const char* title) : Window(title, 1040, 720)
     calcGraphType->registerNodeType(nodeType);
 
 	auto numberDesc_ = new gtf::NodeConnectionDesc<gtf::NodeConnectionStr>(GTF_UID("NumberConnection"), "RigValue");
+	auto numberDesc1_ = new gtf::NodeConnectionDesc<gtf::NodeConnectionStr>(GTF_UID("NumberConnection"), "RigValue1");
 	auto inputADesc_ = new gtf::NodeConnectionDesc<gtf::NodeConnectionStr>(GTF_UID("NumberInputConnectionA"), "InputA");
 	auto inputBDesc_ = new gtf::NodeConnectionDesc<gtf::NodeConnectionStr>(GTF_UID("NumberInputConnectionB"), "InputB");
 
-	nodeType = new gtf::NodeType<ComponentNode>(GTF_UID("ComponentNode"), "RigComponent");
-	nodeType->outputConnectionsDesc.push_back(numberDesc_);
-	calcGraphType->registerNodeType(nodeType);
-
-	nodeType = new gtf::NodeType<ComponentNode>(GTF_UID("ComponentNode"), "Rig");
+	nodeType = new gtf::NodeType<RigAddNode>(GTF_UID("RigAddNode"), "RigAddNode");
 	nodeType->inputConnectionsDesc.push_back(inputADesc_);
 	nodeType->inputConnectionsDesc.push_back(inputBDesc_);
 	nodeType->outputConnectionsDesc.push_back(numberDesc_);
+	calcGraphType->registerNodeType(nodeType);
+
+	nodeType = new gtf::NodeType<ArmNode>(GTF_UID("ArmNode"), "arm");
+	nodeType->inputConnectionsDesc.push_back(inputADesc_);
+	nodeType->inputConnectionsDesc.push_back(inputBDesc_);
+	nodeType->outputConnectionsDesc.push_back(numberDesc_);
+	nodeType->outputConnectionsDesc.push_back(numberDesc1_);
+	calcGraphType->registerNodeType(nodeType);
+
+	nodeType = new gtf::NodeType<TCPNode>(GTF_UID("TCPNode"), "TCPNode");
+	nodeType->inputConnectionsDesc.push_back(inputADesc_);
 	calcGraphType->registerNodeType(nodeType);
 
     calcGraphInstance = new CalcNodeGraph(calcGraphType);

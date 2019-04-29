@@ -28,7 +28,9 @@ enum class ECalcNodeType : uint8_t
     CNT_SUBSTRACT,
     CNT_MULTIPLY,
     CNT_DIVIDE,
-    CNT_RIG
+    CNT_RIG,
+    CNT_ARM,
+    CNT_TCP
 };
 
 struct ConnectionDesc
@@ -109,27 +111,56 @@ public:
 
 	bool dirty{ true };
 	ECalcNodeType type;
-	std::string thuy{ "none" };
+	std::string result{ "none" };
 
-	static CalcNode* CAST(gtf::Node* node) { return dynamic_cast<CalcNode*>(node); }
+	static RigNode* CAST(gtf::Node* node) { return dynamic_cast<RigNode*>(node); }
 };
 
 class ComponentNode : public RigNode
 {
 public:
 	ComponentNode(ECalcNodeType _t) : RigNode(_t) {};
-	ComponentNode() : RigNode(ECalcNodeType::CNT_RIG)
-	{
-		thuy = "head";
-	};
+	ComponentNode() : RigNode(ECalcNodeType::CNT_RIG) {};
 
 	void update() override;
 
 };
 
-class RigBuilderNode : public RigNode
+class RigOpNode : public ComponentNode
 {
 public:
-	RigBuilderNode(ECalcNodeType _t) : RigNode(_t) {};
+	RigOpNode(ECalcNodeType _t) : ComponentNode(_t) {};
 	void update() override;
+
+	virtual std::string RigOp(std::string a, std::string b) { return ""; }
 };
+
+class ArmNode : public ComponentNode
+{
+public:
+	ArmNode() : ComponentNode(ECalcNodeType::CNT_RIG)
+	{
+		result = "arm";
+	};
+};
+
+class RigAddNode : public RigOpNode
+{
+public:
+	RigAddNode() : RigOpNode(ECalcNodeType::CNT_ARM) {};
+	std::string RigOp(std::string a, std::string b) { return a + b; }
+};
+
+class TCPNode : public gtf::Node
+{
+public:
+	TCPNode();
+	int createTCP(char* message);
+	bool dirty{ true };
+	int number{ 0 };
+
+	void update() override;
+
+	static TCPNode* CAST(gtf::Node* node) { return dynamic_cast<TCPNode*>(node); }
+};
+
