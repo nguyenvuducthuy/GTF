@@ -99,6 +99,17 @@ else()
 	link_directories(external/glfw/lib-vc2015)
 endif()
 
+# Find the QtWidgets library
+# find_package(Qt5 COMPONENTS
+#              Core
+#              Widgets
+#              Gui
+#              OpenGL
+#              Network
+#              )
+
+# set(CMAKE_AUTOMOC ON)
+
 #examples
 set( GTF_EXAMPLES CalcGraph NoiseGenerator MeshViewer RigGraph)
 
@@ -111,6 +122,38 @@ foreach( EXAMPLE ${GTF_EXAMPLES} )
 	target_link_libraries(${EXAMPLE} gtf)
 	target_link_libraries(${EXAMPLE} gtf_thirdparty)
 
+	# target_compile_options(${EXAMPLE}
+	#   PRIVATE
+	#     $<$<CXX_COMPILER_ID:MSVC>:/W4 /wd4127 /EHsc>
+	#     $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra>
+	#     $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra>
+	# )
+	# target_link_libraries(${EXAMPLE}
+	#     Qt5::Core
+	#     Qt5::Widgets
+	#     Qt5::Gui
+	#     Qt5::OpenGL
+	#     Qt5::Network
+	# )
+
+	# target_compile_definitions(${EXAMPLE}
+	#   PUBLIC
+	#     ${Qt5Widgets_DEFINITIONS}
+	# )
+
+	# target_compile_features(${EXAMPLE}
+	#   PUBLIC
+	#     cxx_generic_lambdas # Require C++14
+	# )
+
+	# qt5_wrap_cpp(nodes_moc
+ #    ${HEADERS_TO_MOC}
+	#   TARGET ${EXAMPLE}
+	#   OPTIONS --no-notes # Don't display a note for the headers which don't produce a moc_*.cpp
+	# )
+
+	# target_sources(${EXAMPLE} PRIVATE ${nodes_moc})
+
 	if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")	
 		target_link_libraries(${EXAMPLE} ${MACOS_LIBRARIES})
 		target_link_libraries(${EXAMPLE} fbxsdk)
@@ -121,3 +164,4 @@ foreach( EXAMPLE ${GTF_EXAMPLES} )
 		target_link_libraries(${EXAMPLE} opengl32)
 	endif()
 endforeach()
+

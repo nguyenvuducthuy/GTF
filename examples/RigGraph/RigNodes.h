@@ -12,6 +12,8 @@
 #include <cstdint>
 #include <list>
 #include <vector>
+#include <winsock2.h>
+//#include "TCPServer.h"
 
 #define MAX_CONNECTION_COUNT 32
 
@@ -157,7 +159,10 @@ public:
 	TCPNode();
 	int createTCP(char* message);
 	bool dirty{ true };
-	int number{ 0 };
+	std::string msg;
+	//TcpServer * thuy;
+	SOCKET ListenSocket;
+	SOCKET ClientSocket;
 
 	void update() override;
 
