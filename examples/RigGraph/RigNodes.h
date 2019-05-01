@@ -30,8 +30,8 @@ enum class ECalcNodeType : uint8_t
     CNT_SUBSTRACT,
     CNT_MULTIPLY,
     CNT_DIVIDE,
-    CNT_RIG,
-    CNT_ARM,
+	CNT_RIGCOMP,
+	CNT_RIGOP,
     CNT_TCP
 };
 
@@ -40,7 +40,6 @@ struct ConnectionDesc
 	const char* name;
 	ECalcConnectionType type;
 };
-
 
 class CalcNode : public gtf::Node
 {
@@ -122,7 +121,7 @@ class ComponentNode : public RigNode
 {
 public:
 	ComponentNode(ECalcNodeType _t) : RigNode(_t) {};
-	ComponentNode() : RigNode(ECalcNodeType::CNT_RIG) {};
+	ComponentNode() : RigNode(ECalcNodeType::CNT_RIGCOMP) {};
 
 	void update() override;
 
@@ -140,7 +139,7 @@ public:
 class ArmNode : public ComponentNode
 {
 public:
-	ArmNode() : ComponentNode(ECalcNodeType::CNT_RIG)
+	ArmNode() : ComponentNode(ECalcNodeType::CNT_RIGCOMP)
 	{
 		result = "arm";
 	};
@@ -149,7 +148,7 @@ public:
 class RigAddNode : public RigOpNode
 {
 public:
-	RigAddNode() : RigOpNode(ECalcNodeType::CNT_ARM) {};
+	RigAddNode() : RigOpNode(ECalcNodeType::CNT_RIGOP) {};
 	std::string RigOp(std::string a, std::string b) { return a + b; }
 };
 

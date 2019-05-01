@@ -12,7 +12,7 @@
 
 CalcWindow::CalcWindow(const char* title) : Window(title, 1040, 720)
 {
-    calcGraphType = new gtf::NodeGraphType(GTF_UID("CalcGraphType"));
+    calcGraphType = new gtf::NodeGraphType(GTF_UID("Rig"));
     
 	auto numberDesc = new gtf::NodeConnectionDesc<gtf::NodeConnectionI32>(GTF_UID("NumberConnection"), "Value");
 	auto inputADesc = new gtf::NodeConnectionDesc<gtf::NodeConnectionI32>(GTF_UID("NumberInputConnectionA"), "InputA");
@@ -60,9 +60,7 @@ CalcWindow::CalcWindow(const char* title) : Window(title, 1040, 720)
 
 	nodeType = new gtf::NodeType<ArmNode>(GTF_UID("ArmNode"), "arm");
 	nodeType->inputConnectionsDesc.push_back(inputADesc_);
-	nodeType->inputConnectionsDesc.push_back(inputBDesc_);
 	nodeType->outputConnectionsDesc.push_back(numberDesc_);
-	nodeType->outputConnectionsDesc.push_back(numberDesc1_);
 	calcGraphType->registerNodeType(nodeType);
 
 	nodeType = new gtf::NodeType<TCPNode>(GTF_UID("TCPNode"), "TCPNode");
@@ -101,9 +99,15 @@ void CalcWindow::frame(double deltaTime)
             CalcNode* node = CalcNode::CAST(calcGraphInstance->selectedNodes.front());
             if(node && node->type == ECalcNodeType::CNT_NUMBER)
             {
-                
                 node->dirty = ImGui::InputInt("Value", &node->number);
             }
+
+			RigNode* node_ = RigNode::CAST(calcGraphInstance->selectedNodes.front());
+			if(node_ && node_->type == ECalcNodeType::CNT_RIGCOMP)
+			{
+				char * nodeVal = (char*)node_->result.c_str();
+				node_->dirty = ImGui::InputTextMultiline("Value", nodeVal, 66666);
+			}
             
         }
     }
@@ -117,7 +121,7 @@ void CalcWindow::frame(double deltaTime)
         ImGui::Text("Controls");
         ImGui::Separator(); ImGui::Spacing();
         
-         ImGui::Text("Right-Click to open menu."); ImGui::Spacing();
+        ImGui::Text("Right-Click to open menu."); ImGui::Spacing();
         ImGui::Text("Drag connections to link."); ImGui::Spacing();
         ImGui::Text("[Shit]+Click on a node for multi \nselection."); ImGui::Spacing();
         ImGui::Text("[Ctrl]+Click on a connection \nto break links."); ImGui::Spacing();

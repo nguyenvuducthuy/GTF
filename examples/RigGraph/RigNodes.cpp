@@ -21,7 +21,7 @@
 // #pragma comment (lib, "Mswsock.lib")
 
 #define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "7171"
+#define DEFAULT_PORT 7171
 
 #include "RigNodes.h"
 
@@ -117,7 +117,7 @@ void ComponentNode::update()
 		for (gtf::NodeConnectionBase* con : outputConnections)
 		{
 			gtf::NodeConnectionStr * numberCon = gtf::NodeConnectionStr::CAST(con);
-			numberCon->data = result;
+			//numberCon->data = result;
 		}
 
 		for (gtf::NodeConnectionBase* con : outputConnections[0]->output)
@@ -340,10 +340,19 @@ int TCPNode::createTCP(char* message)
 	//----------------------
 	// The sockaddr_in structure specifies the address family,
 	// IP address, and port for the socket that is being bound.
+
+	// Get the local hostname
+	char szHostName[255];
+	gethostname(szHostName, 255);
+	struct hostent *host_entry;
+	host_entry = gethostbyname(szHostName);
+	char * szLocalIP;
+	szLocalIP = inet_ntoa(*(struct in_addr *)*host_entry->h_addr_list);
+
 	sockaddr_in service;
 	service.sin_family = AF_INET;
-	service.sin_addr.s_addr = inet_addr("192.168.1.6");
-	service.sin_port = htons(7171);
+	service.sin_addr.s_addr = inet_addr(szLocalIP);
+	service.sin_port = htons(DEFAULT_PORT);
 
 	if (bind(ListenSocket,
 		(SOCKADDR *)& service, sizeof(service)) == SOCKET_ERROR) {
@@ -496,33 +505,53 @@ void TCPNode::update()
 			INT iReturnStatus = -1;
 			fd_set readFDs = { 0 };
 
-			//tv.tv_usec = 2400000000; // microseconds
-			tv.tv_sec    = 2400000000; // microseconds
+			tv.tv_usec		= 10; // microseconds
+			//tv.tv_sec		= 1; // seconds
 			FD_ZERO(&readFDs);
 			FD_SET(ListenSocket, &readFDs);
 			iReturnStatus = select(0, &readFDs, NULL, NULL, &tv);
-			//printf("iReturnStatus %d\n", iReturnStatus);
 
-			if (iReturnStatus == 1)
+			switch (iReturnStatus)
 			{
-				ClientSocket = accept(ListenSocket, NULL, NULL);
-				if (ClientSocket == INVALID_SOCKET) {
-					wprintf(L"accept failed with error: %ld\n", WSAGetLastError());
-					closesocket(ListenSocket);
-					WSACleanup();
-					return;
+				case 0:
+				{
+					//wprintf(L"Waiting for client to connect...\n");
+					break;
 				}
-				else
-					wprintf(L"Client connected.\n");
+				case 1:
+				{
+					ClientSocket = accept(ListenSocket, NULL, NULL);
+					if (ClientSocket == INVALID_SOCKET) {
+						wprintf(L"accept failed with error: %ld\n", WSAGetLastError());
+						closesocket(ListenSocket);
+						WSACleanup();
+						return;
+					}
+					else
+					{
+						char hostname[255];
+						gethostname(hostname, 255);
 
-				int iSendResult;
-				iSendResult = send(ClientSocket, msg.c_str(), (int)strlen(msg.c_str()), 0);
-				if (iSendResult == SOCKET_ERROR) {
-					printf("send failed with error: %d\n", WSAGetLastError());
+						sockaddr_in client_addr{};
+						int size = sizeof(client_addr);
+						auto ret = getpeername(ClientSocket, (sockaddr*)&client_addr, &size);
+
+						printf("Client connected %s %s %d.\n", hostname, inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+					}
+
+					int iSendResult;
+					iSendResult = send(ClientSocket, msg.c_str(), (int)strlen(msg.c_str()), 0);
+					if (iSendResult == SOCKET_ERROR) {
+						printf("send failed with error: %d\n", WSAGetLastError());
+						closesocket(ClientSocket);
+						WSACleanup();
+						return;
+					}
 					closesocket(ClientSocket);
-					WSACleanup();
-					return;
+					break;
 				}
+				default:
+					break;
 			}
 
 			readyInputs++;
