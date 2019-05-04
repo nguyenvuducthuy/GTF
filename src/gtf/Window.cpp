@@ -126,7 +126,8 @@ Window::Window(const char* title, unsigned int width, unsigned int height)
     
     
     m_nativeWindow->glfw_window = window;
-    m_imguiContext = new ImGuiContext();
+	ImFontAtlas* atlas = new ImFontAtlas();
+	m_imguiContext = ImGui::CreateContext(atlas);
     ImGui::SetCurrentContext(m_imguiContext);
     GTFIMGUI_InitImGui();
     ImGuiGL3_CreateFontsTexture();
@@ -139,8 +140,8 @@ Window::~Window()
     if(GAPP->getMainWindow() != this)
         m_imguiContext->IO.Fonts = nullptr;
     
-    ImGui::Shutdown();
-    delete m_imguiContext;
+    ImGui::DestroyContext(m_imguiContext);
+    //delete m_imguiContext;
     glfwDestroyWindow(m_nativeWindow->glfw_window);
     delete m_nativeWindow;
 }

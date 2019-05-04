@@ -13,6 +13,7 @@
 #include <list>
 #include <vector>
 #include <winsock2.h>
+#include <string>
 //#include "TCPServer.h"
 
 #define MAX_CONNECTION_COUNT 32
@@ -113,7 +114,7 @@ public:
 	bool dirty{ true };
 	ECalcNodeType type;
 	std::string result{ "none" };
-
+	
 	static RigNode* CAST(gtf::Node* node) { return dynamic_cast<RigNode*>(node); }
 };
 
@@ -133,7 +134,7 @@ public:
 	RigOpNode(ECalcNodeType _t) : ComponentNode(_t) {};
 	void update() override;
 
-	virtual std::string RigOp(std::string a, std::string b) { return ""; }
+	virtual std::string RigOp(std::string a, std::string b) { return NULL; }
 };
 
 class ArmNode : public ComponentNode
@@ -168,3 +169,11 @@ public:
 	static TCPNode* CAST(gtf::Node* node) { return dynamic_cast<TCPNode*>(node); }
 };
 
+namespace anhungxadieu
+{
+	// ImGui::InputText() with std::string
+	// Because text input needs dynamic resizing, we need to setup a callback to grow the capacity
+	IMGUI_API bool  InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+	IMGUI_API bool  InputTextMultiline(const char* label, std::string* str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+	IMGUI_API bool  InputTextWithHint(const char* label, const char* hint, std::string* str, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = NULL, void* user_data = NULL);
+}

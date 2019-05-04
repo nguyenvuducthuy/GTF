@@ -8,7 +8,8 @@
 
 #include "RigWindow.h"
 #include "RigNodes.h"
-#include <imgui.h>
+//#include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 CalcWindow::CalcWindow(const char* title) : Window(title, 1040, 720)
 {
@@ -105,10 +106,8 @@ void CalcWindow::frame(double deltaTime)
 			RigNode* node_ = RigNode::CAST(calcGraphInstance->selectedNodes.front());
 			if(node_ && node_->type == ECalcNodeType::CNT_RIGCOMP)
 			{
-				char * nodeVal = (char*)node_->result.c_str();
-				node_->dirty = ImGui::InputTextMultiline("Value", nodeVal, 66666);
+				node_->dirty = anhungxadieu::InputTextMultiline("", &node_->result, ImVec2(-1.0f, m_windowHeight - 280));
 			}
-            
         }
     }
     ImGui::End();

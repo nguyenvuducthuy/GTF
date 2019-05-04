@@ -117,7 +117,10 @@ void ComponentNode::update()
 		for (gtf::NodeConnectionBase* con : outputConnections)
 		{
 			gtf::NodeConnectionStr * numberCon = gtf::NodeConnectionStr::CAST(con);
-			//numberCon->data = result;
+			if (!result.empty())
+			{
+				numberCon->data = result;
+			}
 		}
 
 		for (gtf::NodeConnectionBase* con : outputConnections[0]->output)
@@ -169,21 +172,29 @@ void RigOpNode::update()
 			inputB->data = "";
 		}
 
+		inputA->isDirty = false;
+		inputB->isDirty = false;
+
+		gtf::NodeConnectionStr * output = gtf::NodeConnectionStr::CAST(outputConnections[0]);
+		
+		//printf("a -> %s b -> %s\n", inputA->data.c_str(), inputB->data.c_str());
+		//std::string daume = inputA->data + inputB->data;
+		//printf("result -> %s\n", daume.c_str());
+
+		result = output->data = RigOp(inputA->data, inputB->data);
+
+		//printf("result %s \n", daume.c_str());
+		//result = output->data = daume;
+		//char*tmp = RigOp(inputA->data.begin(), inputB->data.begin);
+		//std::copy(tmp.begin(), tmp.end(), std::back_inserter(result));
+		output->isReady = true; //(readyInputs == 2);
+
+		for (auto otherOut : output->output)
 		{
-			inputA->isDirty = false;
-			inputB->isDirty = false;
-			gtf::NodeConnectionStr * output = gtf::NodeConnectionStr::CAST(outputConnections[0]);
-
-			result = output->data = RigOp(inputA->data, inputB->data);
-			output->isReady = true; //(readyInputs == 2);
-
-			for (auto otherOut : output->output)
-			{
-				otherOut->isDirty = true;
-			}
-
-			dirty = false;
+			otherOut->isDirty = true;
 		}
+
+		dirty = false;
 	}
 }
 
@@ -561,4 +572,71 @@ void TCPNode::update()
 			inputA->data = "";
 		}
 	}
+}
+
+//======================
+//anhungxadieu namespace
+//======================
+struct InputTextCallback_UserData
+{
+	std::string*            Str;
+	ImGuiInputTextCallback  ChainCallback;
+	void*                   ChainCallbackUserData;
+};
+
+static int InputTextCallback(ImGuiInputTextCallbackData* data)
+{
+	InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
+	if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+	{
+		// Resize string callback
+		// If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+		std::string* str = user_data->Str;
+		IM_ASSERT(data->Buf == str->c_str());
+		str->resize(data->BufTextLen);
+		data->Buf = (char*)str->c_str();
+	}
+	else if (user_data->ChainCallback)
+	{
+		// Forward to user callback, if any
+		data->UserData = user_data->ChainCallbackUserData;
+		return user_data->ChainCallback(data);
+	}
+	return 0;
+}
+
+bool anhungxadieu::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
+{
+	IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+	flags |= ImGuiInputTextFlags_CallbackResize;
+
+	InputTextCallback_UserData cb_user_data;
+	cb_user_data.Str = str;
+	cb_user_data.ChainCallback = callback;
+	cb_user_data.ChainCallbackUserData = user_data;
+	return ImGui::InputText(label, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
+}
+
+bool anhungxadieu::InputTextMultiline(const char* label, std::string* str, const ImVec2& size, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
+{
+	IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+	flags |= ImGuiInputTextFlags_CallbackResize;
+
+	InputTextCallback_UserData cb_user_data;
+	cb_user_data.Str = str;
+	cb_user_data.ChainCallback = callback;
+	cb_user_data.ChainCallbackUserData = user_data;
+	return ImGui::InputTextMultiline(label, (char*)str->c_str(), str->capacity() + 1, size, flags, InputTextCallback, &cb_user_data);
+}
+
+bool anhungxadieu::InputTextWithHint(const char* label, const char* hint, std::string* str, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
+{
+	IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+	flags |= ImGuiInputTextFlags_CallbackResize;
+
+	InputTextCallback_UserData cb_user_data;
+	cb_user_data.Str = str;
+	cb_user_data.ChainCallback = callback;
+	cb_user_data.ChainCallbackUserData = user_data;
+	return ImGui::InputTextWithHint(label, hint, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
 }

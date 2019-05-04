@@ -4,6 +4,8 @@ project(GTF)
 
 #set( GTF_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin )
 
+set (CMAKE_CXX_STANDARD 11)
+
 if(CMAKE_SIZEOF_VOID_P EQUAL 8) 
     set( GTF_ARCH x64 )
 else() 
