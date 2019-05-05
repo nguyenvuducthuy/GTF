@@ -143,50 +143,59 @@ void RigOpNode::update()
 
 	if (dirty)
 	{
-		gtf::NodeConnectionStr * inputA = gtf::NodeConnectionStr::CAST(inputConnections[0]);
-		gtf::NodeConnectionStr * inputB = gtf::NodeConnectionStr::CAST(inputConnections[1]);
+		//gtf::NodeConnectionStr * inputA = gtf::NodeConnectionStr::CAST(inputConnections[0]);
+		//gtf::NodeConnectionStr * inputB = gtf::NodeConnectionStr::CAST(inputConnections[1]);
 
 		int readyInputs = 0;
 
-		if (inputConnections[0]->input != nullptr &&
-			inputConnections[0]->input->isReady)
-		{
-			gtf::NodeConnectionStr const * inputASource = gtf::NodeConnectionStr::CAST(inputConnections[0]->input);
-			inputA->data = inputASource->data;
-			readyInputs++;
-		}
-		else
-		{
-			inputA->data = "";
-		}
+		//if (inputConnections[0]->input != nullptr &&
+		//	inputConnections[0]->input->isReady)
+		//{
+		//	gtf::NodeConnectionStr const * inputASource = gtf::NodeConnectionStr::CAST(inputConnections[0]->input);
+		//	inputA->data = inputASource->data;
+		//	readyInputs++;
+		//}
+		//else
+		//{
+		//	inputA->data = "";
+		//}
 
-		if (inputConnections[1]->input != nullptr &&
-			inputConnections[1]->input->isReady)
-		{
-			gtf::NodeConnectionStr const * inputBSource = gtf::NodeConnectionStr::CAST(inputConnections[1]->input);
-			inputB->data = inputBSource->data;
-			readyInputs++;
-		}
-		else
-		{
-			inputB->data = "";
-		}
+		//if (inputConnections[1]->input != nullptr &&
+		//	inputConnections[1]->input->isReady)
+		//{
+		//	gtf::NodeConnectionStr const * inputBSource = gtf::NodeConnectionStr::CAST(inputConnections[1]->input);
+		//	inputB->data = inputBSource->data;
+		//	readyInputs++;
+		//}
+		//else
+		//{
+		//	inputB->data = "";
+		//}
 
-		inputA->isDirty = false;
-		inputB->isDirty = false;
+		//inputA->isDirty = false;
+		//inputB->isDirty = false;
+
+		for (gtf::NodeConnectionBase* con : inputConnections)
+		{
+			gtf::NodeConnectionStr * strCon = gtf::NodeConnectionStr::CAST(con);
+			if (strCon->input != nullptr &&
+				strCon->input->isReady)
+			{
+				gtf::NodeConnectionStr const * inputASource = gtf::NodeConnectionStr::CAST(strCon->input);
+				strCon->data = inputASource->data;
+				readyInputs++;
+			}
+			else
+			{
+				strCon->data = "";
+			}
+			strCon->isDirty = false;
+		}
 
 		gtf::NodeConnectionStr * output = gtf::NodeConnectionStr::CAST(outputConnections[0]);
 		
-		//printf("a -> %s b -> %s\n", inputA->data.c_str(), inputB->data.c_str());
-		//std::string daume = inputA->data + inputB->data;
-		//printf("result -> %s\n", daume.c_str());
-
 		result = output->data = RigOp(inputA->data, inputB->data);
 
-		//printf("result %s \n", daume.c_str());
-		//result = output->data = daume;
-		//char*tmp = RigOp(inputA->data.begin(), inputB->data.begin);
-		//std::copy(tmp.begin(), tmp.end(), std::back_inserter(result));
 		output->isReady = true; //(readyInputs == 2);
 
 		for (auto otherOut : output->output)

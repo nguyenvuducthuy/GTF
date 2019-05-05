@@ -8,8 +8,7 @@
 
 #include "RigWindow.h"
 #include "RigNodes.h"
-//#include <imgui.h>
-#include <misc/cpp/imgui_stdlib.h>
+#include <imgui.h>
 
 CalcWindow::CalcWindow(const char* title) : Window(title, 1040, 720)
 {
@@ -52,14 +51,18 @@ CalcWindow::CalcWindow(const char* title) : Window(title, 1040, 720)
 	auto numberDesc1_ = new gtf::NodeConnectionDesc<gtf::NodeConnectionStr>(GTF_UID("NumberConnection"), "RigValue1");
 	auto inputADesc_ = new gtf::NodeConnectionDesc<gtf::NodeConnectionStr>(GTF_UID("NumberInputConnectionA"), "InputA");
 	auto inputBDesc_ = new gtf::NodeConnectionDesc<gtf::NodeConnectionStr>(GTF_UID("NumberInputConnectionB"), "InputB");
+	auto inputCDesc_ = new gtf::NodeConnectionDesc<gtf::NodeConnectionStr>(GTF_UID("NumberInputConnectionB"), "InputB");
+	auto inputDDesc_ = new gtf::NodeConnectionDesc<gtf::NodeConnectionStr>(GTF_UID("NumberInputConnectionB"), "InputB");
 
-	nodeType = new gtf::NodeType<RigAddNode>(GTF_UID("RigAddNode"), "RigAddNode");
+	nodeType = new gtf::NodeType<RigGuideNode>(GTF_UID("RigGuideNode"), "RigGuideNode");
 	nodeType->inputConnectionsDesc.push_back(inputADesc_);
 	nodeType->inputConnectionsDesc.push_back(inputBDesc_);
+	nodeType->inputConnectionsDesc.push_back(inputCDesc_);
+	nodeType->inputConnectionsDesc.push_back(inputDDesc_);
 	nodeType->outputConnectionsDesc.push_back(numberDesc_);
 	calcGraphType->registerNodeType(nodeType);
 
-	nodeType = new gtf::NodeType<ArmNode>(GTF_UID("ArmNode"), "arm");
+	nodeType = new gtf::NodeType<ComponentNode>(GTF_UID("ComponentNode"), "ComponentNode");
 	nodeType->inputConnectionsDesc.push_back(inputADesc_);
 	nodeType->outputConnectionsDesc.push_back(numberDesc_);
 	calcGraphType->registerNodeType(nodeType);
@@ -88,7 +91,7 @@ void CalcWindow::frame(double deltaTime)
     float propertiesWith = 250;
     
     ImGui::SetNextWindowPos(ImVec2(m_windowWidth - propertiesWith - 20.0f, 20.0f), ImGuiSetCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(propertiesWith, m_windowHeight - 240.0f), ImGuiSetCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(propertiesWith, m_windowHeight - 40.0f), ImGuiSetCond_Always);
     
     ImGui::Begin("NodeProperties", nullptr, flags	);
     {
@@ -106,28 +109,28 @@ void CalcWindow::frame(double deltaTime)
 			RigNode* node_ = RigNode::CAST(calcGraphInstance->selectedNodes.front());
 			if(node_ && node_->type == ECalcNodeType::CNT_RIGCOMP)
 			{
-				node_->dirty = anhungxadieu::InputTextMultiline("", &node_->result, ImVec2(-1.0f, m_windowHeight - 280));
+				node_->dirty = anhungxadieu::InputTextMultiline("", &node_->result, ImVec2(-1.0f, m_windowHeight-80.0f));
 			}
         }
     }
     ImGui::End();
     
-    ImGui::SetNextWindowPos(ImVec2(m_windowWidth - propertiesWith - 20.0f, m_windowHeight - 200.0f), ImGuiSetCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(propertiesWith, 180.0f), ImGuiSetCond_Always);
-    
-    if(ImGui::Begin("Controls", nullptr, flags))
-    {
-        ImGui::Text("Controls");
-        ImGui::Separator(); ImGui::Spacing();
-        
-        ImGui::Text("Right-Click to open menu."); ImGui::Spacing();
-        ImGui::Text("Drag connections to link."); ImGui::Spacing();
-        ImGui::Text("[Shit]+Click on a node for multi \nselection."); ImGui::Spacing();
-        ImGui::Text("[Ctrl]+Click on a connection \nto break links."); ImGui::Spacing();
-        ImGui::Text("[Supr] to delete selected nodes"); ImGui::Spacing();
-        
-    }
-    ImGui::End();
+    //ImGui::SetNextWindowPos(ImVec2(m_windowWidth - propertiesWith - 20.0f, m_windowHeight - 200.0f), ImGuiSetCond_Always);
+    //ImGui::SetNextWindowSize(ImVec2(propertiesWith, 180.0f), ImGuiSetCond_Always);
+    //
+    //if(ImGui::Begin("Controls", nullptr, flags))
+    //{
+    //    ImGui::Text("Controls");
+    //    ImGui::Separator(); ImGui::Spacing();
+    //    
+    //    ImGui::Text("Right-Click to open menu."); ImGui::Spacing();
+    //    ImGui::Text("Drag connections to link."); ImGui::Spacing();
+    //    ImGui::Text("[Shit]+Click on a node for multi \nselection."); ImGui::Spacing();
+    //    ImGui::Text("[Ctrl]+Click on a connection \nto break links."); ImGui::Spacing();
+    //    ImGui::Text("[Supr] to delete selected nodes"); ImGui::Spacing();
+    //    
+    //}
+    //ImGui::End();
     
     ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiSetCond_Always);
     ImGui::SetNextWindowSize(ImVec2(m_windowWidth - propertiesWith - 60.0f, m_windowHeight - 40.0f), ImGuiSetCond_Always);

@@ -146,11 +146,11 @@ public:
 	};
 };
 
-class RigAddNode : public RigOpNode
+class RigGuideNode : public RigOpNode
 {
 public:
-	RigAddNode() : RigOpNode(ECalcNodeType::CNT_RIGOP) {};
-	std::string RigOp(std::string a, std::string b) { return a + b; }
+	RigGuideNode() : RigOpNode(ECalcNodeType::CNT_RIGOP) {};
+	std::string RigOp(std::string a, std::string b) { return a +"\r\n"+ b; }
 };
 
 class TCPNode : public gtf::Node
